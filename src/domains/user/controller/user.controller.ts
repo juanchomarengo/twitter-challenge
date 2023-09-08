@@ -37,6 +37,15 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(user)
 })
 
+userRouter.patch('/', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { privateProfile } = req.body
+
+  const user = await service.partialUpdate(userId, { privateProfile })
+
+  return res.status(HttpStatus.OK).json(user)
+})
+
 userRouter.delete('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
 

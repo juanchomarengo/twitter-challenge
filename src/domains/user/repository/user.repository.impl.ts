@@ -58,4 +58,14 @@ export class UserRepositoryImpl implements UserRepository {
     })
     return user ? new ExtendedUserDTO(user) : null
   }
+
+  async partialUpdate (userId: any, data: Partial<UserDTO>): Promise<UserDTO> {
+    const user = await this.db.user.update({
+      where: {
+        id: userId
+      },
+      data
+    })
+    return new UserDTO(user)
+  }
 }
