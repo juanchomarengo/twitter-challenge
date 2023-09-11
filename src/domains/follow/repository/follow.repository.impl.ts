@@ -38,4 +38,17 @@ export class FollowRepositoryImpl implements FollowRepository {
     })
     return new FollowDTO(deletedFollow)
   }
+
+  async getFollow ({ followedId, followerId }: { followedId: string, followerId: string }): Promise<FollowDTO | null> {
+    const follow = await this.db.follow.findUnique({
+      where: {
+        followerId_followedId: {
+          followedId,
+          followerId
+        }
+      }
+    })
+
+    return follow ? new FollowDTO(follow) : null
+  }
 }

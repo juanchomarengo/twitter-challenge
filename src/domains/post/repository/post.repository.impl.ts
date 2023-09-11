@@ -3,12 +3,12 @@ import { PrismaClient } from '@prisma/client'
 import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 
 export class PostRepositoryImpl implements PostRepository {
-  constructor (private readonly db: PrismaClient) {}
+  constructor(private readonly db: PrismaClient) {}
 
-  async create (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
+  async create(userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     const post = await this.db.post.create({
       data: {
         authorId: userId,
@@ -18,9 +18,35 @@ export class PostRepositoryImpl implements PostRepository {
     return new PostDTO(post)
   }
 
-  async getAllByDatePaginated (options: CursorPagination): Promise<PostDTO[]> {
+  async getAllByDatePaginated(userId: string, options: CursorPagination): Promise<PostDTO[]> {
     const posts = await this.db.post.findMany({
-      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      where: {
+        author: {
+          OR: [
+            {
+              privateProfile: false
+            },
+            {
+              AND: [
+                {
+                  privateProfile: true
+                },
+                {
+                  followers: {
+                    some: {
+                      followerId: userId
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      include: {
+        author: true
+      },
+      cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
       skip: options.after ?? options.before ? 1 : undefined,
       take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
       orderBy: [
@@ -32,10 +58,10 @@ export class PostRepositoryImpl implements PostRepository {
         }
       ]
     })
-    return posts.map(post => new PostDTO(post))
+    return posts.map((post) => new PostDTO(post))
   }
 
-  async delete (postId: string): Promise<void> {
+  async delete(postId: string): Promise<void> {
     await this.db.post.delete({
       where: {
         id: postId
@@ -43,21 +69,31 @@ export class PostRepositoryImpl implements PostRepository {
     })
   }
 
-  async getById (postId: string): Promise<PostDTO | null> {
+  async getById(postId: string): Promise<ExtendedPostDTO | null> {
     const post = await this.db.post.findUnique({
       where: {
         id: postId
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+            privateProfile: true
+          }
+        }
       }
     })
-    return (post != null) ? new PostDTO(post) : null
+    return post != null ? new ExtendedPostDTO(post) : null
   }
 
-  async getByAuthorId (authorId: string): Promise<PostDTO[]> {
+  async getByAuthorId(authorId: string): Promise<PostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
         authorId
       }
     })
-    return posts.map(post => new PostDTO(post))
+    return posts.map((post) => new PostDTO(post))
   }
 }

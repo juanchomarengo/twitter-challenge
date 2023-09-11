@@ -22,4 +22,13 @@ export class FollowServiceImpl implements FollowService {
     const result = await this.repository.delete({ followedId, followerId })
     return result
   }
+
+  async canViewPrivateProfile ({ followedId, followerId }: { followedId: string, followerId: string }): Promise<boolean> {
+    if (followedId === followerId) {
+      return true
+    }
+
+    const result = await this.repository.getFollow({ followedId, followerId })
+    return !!result
+  }
 }
