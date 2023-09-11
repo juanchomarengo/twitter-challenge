@@ -9,11 +9,11 @@ export const followRouter = Router()
 const service: FollowService = new FollowServiceImpl(new FollowRepositoryImpl(db))
 
 followRouter.post('/follow/:userId', async (req: Request, res: Response) => {
-  const { userId: followerId } = req.params
+  const { userId: followedId } = req.params
 
   const { userId } = res.locals.context
 
-  const user = await service.followByUserId({ followedId: userId, followerId })
+  const user = await service.followByUserId({ followedId, followerId: userId })
 
   return res.status(HttpStatus.OK).json({
     message: 'Followed',

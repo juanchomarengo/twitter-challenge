@@ -18,6 +18,13 @@ export class UserServiceImpl implements UserService {
     return await this.repository.getRecommendedUsersPaginated(options)
   }
 
+  async partialUpdate (userId: any, data: Partial<UserDTO>): Promise<UserDTO> {
+    const user = await this.repository.getById(userId)
+    if (!user) throw new NotFoundException('user')
+    const userUpdated = await this.repository.partialUpdate(userId, data)
+    return userUpdated
+  }
+
   async deleteUser (userId: any): Promise<void> {
     await this.repository.delete(userId)
   }
