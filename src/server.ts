@@ -6,6 +6,9 @@ import cors from 'cors'
 import { Constants, NodeEnv, Logger } from '@utils'
 import { router } from '@router'
 import { ErrorHandling } from '@utils/errors'
+import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
+import { options } from '@swagger'
 
 const app = express()
 
@@ -25,6 +28,9 @@ app.use(
     origin: Constants.CORS_WHITELIST
   })
 )
+
+const specs = swaggerJSDoc(options)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 
 app.use('/api', router)
 
