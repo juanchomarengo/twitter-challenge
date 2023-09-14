@@ -37,6 +37,9 @@ export const options = {
       },
       {
         name: 'Post'
+      },
+      {
+        name: 'Reaction'
       }
     ],
     paths: {
@@ -820,6 +823,147 @@ export const options = {
             }
           }
         }
+      },
+      '/reaction/{id}': {
+        post: {
+          tags: ['Reaction'],
+          summary: 'React to post by id',
+          description: '',
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              description: 'id of post to react',
+              required: true,
+              schema: {
+                type: 'string'
+              }
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/RequestReaction'
+                }
+              }
+            }
+          },
+          responses: {
+            '200': {
+              description: 'successful operation',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/ResponseReaction'
+                  }
+                }
+              }
+            },
+            '400': {
+              description: 'Validation error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/ValidationError'
+                  }
+                }
+              }
+            },
+            '401': {
+              description: 'Unauthorized error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/UnauthorizedError'
+                  }
+                }
+              }
+            },
+            '404': {
+              description: 'Post not found',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/NotfoundUserError'
+                  }
+                }
+              }
+            },
+            '500': {
+              description: 'Internal error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/InternalError'
+                  }
+                }
+              }
+            }
+          }
+        },
+        delete: {
+          tags: ['Reaction'],
+          summary: 'Delete reaction by id',
+          description: '',
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              description: 'id of reaction to delete',
+              required: true,
+              schema: {
+                type: 'string'
+              }
+            }
+          ],
+          responses: {
+            '200': {
+              description: 'Reaction deleted successfully'
+            },
+            '401': {
+              description: 'Unauthorized error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/UnauthorizedError'
+                  }
+                }
+              }
+            },
+            '404': {
+              description: 'Reaction not found',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/NotfoundUserError'
+                  }
+                }
+              }
+            },
+            '500': {
+              description: 'Internal error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/InternalError'
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     components: {
@@ -988,6 +1132,41 @@ export const options = {
             }
           }
         },
+        ReactionDto: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              example: '2c4f6e53-9d8e-42ee-af67-d7fca3dba6ea'
+            },
+            userId: {
+              type: 'string',
+              example: '3bf709f0-3f5a-4782-98a5-73fc0c0f55bb'
+            },
+            postId: {
+              type: 'string',
+              example: '30a91154-a8e9-4011-81b8-525fa35fcf2a'
+            },
+            actionType: {
+              type: 'string',
+              example: 'LIKE'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-09-13T17:41:30.991Z'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-09-13T17:41:30.991Z'
+            },
+            deletedAt: {
+              type: 'string',
+              example: null
+            }
+          }
+        },
         RequestLogin: {
           type: 'object',
           properties: {
@@ -1081,6 +1260,23 @@ export const options = {
           type: 'array',
           items: {
             $ref: '#/components/schemas/PostDto'
+          }
+        },
+        RequestReaction: {
+          type: 'object',
+          properties: {
+            actionType: {
+              type: 'string',
+              example: 'LIKE'
+            }
+          }
+        },
+        ResponseReaction: {
+          type: 'object',
+          properties: {
+            schema: {
+              $ref: '#/components/schemas/ReactionDto'
+            }
           }
         },
         ValidationError: {

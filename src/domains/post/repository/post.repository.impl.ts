@@ -18,7 +18,7 @@ export class PostRepositoryImpl implements PostRepository {
     return new PostDTO(post)
   }
 
-  async getAllByDatePaginated(userId: string, options: CursorPagination): Promise<PostDTO[]> {
+  async getAllByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
         author: {
@@ -58,7 +58,7 @@ export class PostRepositoryImpl implements PostRepository {
         }
       ]
     })
-    return posts.map((post) => new PostDTO(post))
+    return posts.map((post) => new ExtendedPostDTO(post))
   }
 
   async delete(postId: string): Promise<void> {
@@ -88,12 +88,22 @@ export class PostRepositoryImpl implements PostRepository {
     return post != null ? new ExtendedPostDTO(post) : null
   }
 
-  async getByAuthorId(authorId: string): Promise<PostDTO[]> {
+  async getByAuthorId(authorId: string): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
         authorId
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+            privateProfile: true
+          }
+        }
       }
     })
-    return posts.map((post) => new PostDTO(post))
+    return posts.map((post) => new ExtendedPostDTO(post))
   }
 }

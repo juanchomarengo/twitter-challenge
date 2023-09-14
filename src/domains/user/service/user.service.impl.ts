@@ -26,6 +26,8 @@ export class UserServiceImpl implements UserService {
   }
 
   async deleteUser (userId: any): Promise<void> {
+    const user = await this.repository.getById(userId)
+    if (!user) throw new NotFoundException('user')
     await this.repository.delete(userId)
   }
 }

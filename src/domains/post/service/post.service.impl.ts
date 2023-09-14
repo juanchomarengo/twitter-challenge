@@ -1,4 +1,4 @@
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 import { PostRepository } from '../repository'
 import { PostService } from '.'
 import { validate } from 'class-validator'
@@ -26,7 +26,7 @@ export class PostServiceImpl implements PostService {
     await this.repository.delete(postId)
   }
 
-  async getPost(userId: string, postId: string): Promise<any> {
+  async getPost(userId: string, postId: string): Promise<ExtendedPostDTO> {
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
 
@@ -45,12 +45,11 @@ export class PostServiceImpl implements PostService {
     return post
   }
 
-  async getLatestPosts(userId: string, options: CursorPagination): Promise<PostDTO[]> {
-    // TODO: filter post search to return posts from authors that the user follows
+  async getLatestPosts(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     return await this.repository.getAllByDatePaginated(userId, options)
   }
 
-  async getPostsByAuthor(userId: any, authorId: string): Promise<PostDTO[]> {
+  async getPostsByAuthor(userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
     const author = await this.userService.getUser(authorId)
 
     if (author.privateProfile) {
