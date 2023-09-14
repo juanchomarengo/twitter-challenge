@@ -1,4 +1,3 @@
-
 export class ReactionDTO {
   constructor(reaction: ReactionDTO) {
     this.id = reaction.id

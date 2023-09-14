@@ -3,10 +3,11 @@ import HttpStatus from 'http-status'
 import { ReactionService, ReactionServiceImpl } from '../service'
 import { ReactionRepositoryImpl } from '../repository'
 import { db } from '@utils'
+import { PostRepositoryImpl } from '@domains/post/repository'
 
 export const reactionRouter = Router()
 
-const service: ReactionService = new ReactionServiceImpl(new ReactionRepositoryImpl(db))
+const service: ReactionService = new ReactionServiceImpl(new ReactionRepositoryImpl(db), new PostRepositoryImpl(db))
 
 reactionRouter.post('/:postId', async (req: Request, res: Response) => {
   const { postId } = req.params

@@ -106,4 +106,32 @@ export class PostRepositoryImpl implements PostRepository {
     })
     return posts.map((post) => new ExtendedPostDTO(post))
   }
+
+  async incrementQty(postId: string, qty: 'qtyLikes' | 'qtyComments' | 'qtyRetweets'): Promise<PostDTO> {
+    const post = await this.db.post.update({
+      where: {
+        id: postId
+      },
+      data: {
+        [qty]: {
+          increment: 1
+        }
+      }
+    })
+    return new PostDTO(post)
+  }
+
+  async decrementQty(postId: string, qty: 'qtyLikes' | 'qtyComments' | 'qtyRetweets'): Promise<PostDTO> {
+    const post = await this.db.post.update({
+      where: {
+        id: postId
+      },
+      data: {
+        [qty]: {
+          decrement: 1
+        }
+      }
+    })
+    return new PostDTO(post)
+  }
 }
