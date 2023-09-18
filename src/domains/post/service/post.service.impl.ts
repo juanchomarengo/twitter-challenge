@@ -6,17 +6,39 @@ import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
 import { FollowService } from '@domains/follow/service'
 import { UserService } from '@domains/user/service'
+import { ReactionRepository } from '@domains/reaction/repository'
 
 export class PostServiceImpl implements PostService {
   constructor(
     private readonly repository: PostRepository,
     private readonly followService: FollowService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly reactionRepository: ReactionRepository
   ) {}
 
   async createPost(userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     await validate(data)
-    return await this.repository.create(userId, data)
+    const post = await this.repository.createPost(userId, data)
+    return post
+  }
+
+  async createComment(userId: string, parentId: string, data: CreatePostInputDTO): Promise<PostDTO> {
+    await validate(data)
+
+    const getParent = await this.repository.getById(parentId)
+
+    if (!getParent) throw new NotFoundException('post')
+
+    const post = await this.repository.createComment(userId, parentId, data)
+
+    await this.reactionRepository.create({
+      postId: post.id,
+      userId,
+      actionType: 'COMMENT'
+    })
+    await this.repository.incrementQty(parentId, 'qtyComments')
+
+    return post
   }
 
   async deletePost(userId: string, postId: string): Promise<void> {
@@ -70,5 +92,30 @@ export class PostServiceImpl implements PostService {
     // If the author's profile is public, return all posts
     const posts = await this.repository.getByAuthorId(authorId)
     return posts
+  }
+
+  async getCommentsByPostId(userId: string, postId: string): Promise<ExtendedPostDTO[]> {
+    const post = await this.repository.getById(postId)
+
+    if (!post) throw new NotFoundException('post')
+
+    if (post.author.privateProfile) {
+      const canViewThisPost = await this.followService.canViewPrivateProfile({
+        followedId: post.authorId,
+        followerId: userId
+      })
+
+      if (!canViewThisPost) {
+        throw new ForbiddenException()
+      }
+
+      // If the user can view the author's private profile, return all posts
+      const comments = await this.repository.getCommentsByPostId(postId)
+      return comments
+    }
+
+    // If the author's profile is public, return all posts
+    const comments = await this.repository.getCommentsByPostId(postId)
+    return comments
   }
 }

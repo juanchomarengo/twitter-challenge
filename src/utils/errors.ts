@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import HttpStatus from 'http-status'
 import { Logger } from '@utils'
+import { ValidationError as ExpressValidationError } from 'express-validation'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 abstract class HttpException extends Error {
@@ -69,6 +70,11 @@ export function ErrorHandling (error: Error, req: Request, res: Response, next: 
         .json({ message: 'An operation failed because it depends on one or more records that were required but not found', code: 409 })
     }
 
+    return res.status(HttpStatus.BAD_REQUEST).json({ message: error.message, code: 400 })
+  }
+
+  if (error instanceof ExpressValidationError) {
+    Logger.error(error.message)
     return res.status(HttpStatus.BAD_REQUEST).json({ message: error.message, code: 400 })
   }
 

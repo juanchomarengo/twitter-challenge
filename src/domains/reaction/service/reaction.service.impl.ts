@@ -1,5 +1,5 @@
 import { PostInteractionType } from '@prisma/client'
-import { ReactionDTO } from '../dto'
+import { ExtendedReactionDto, ReactionDTO } from '../dto'
 import { ReactionRepository } from '../repository'
 import { ReactionService } from './reaction.service'
 import { PostRepository } from '@domains/post/repository'
@@ -68,5 +68,10 @@ export class ReactionServiceImpl implements ReactionService {
     }
 
     return 'Deleted'
+  }
+
+  async getPostsByReactionType(type: PostInteractionType[], userId: string): Promise<ExtendedReactionDto[]> {
+    const post = await this.repository.getPostsByReactionsType(type, userId)
+    return post
   }
 }
