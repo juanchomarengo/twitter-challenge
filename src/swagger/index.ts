@@ -702,6 +702,95 @@ export const options = {
             }
           }
         },
+        post: {
+          tags: ['Post'],
+          summary: 'Create comment to post by id',
+          description: '',
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              description: 'id where comment will be created',
+              required: true,
+              schema: {
+                type: 'string'
+              }
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    content: {
+                      type: 'string',
+                      example: 'Hi Juan, nice post!'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            '200': {
+              description: 'successful operation',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/PostDto'
+                  }
+                }
+              }
+            },
+            '400': {
+              description: 'Validation error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/ValidationError'
+                  }
+                }
+              }
+            },
+            '401': {
+              description: 'Unauthorized error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/UnauthorizedError'
+                  }
+                }
+              }
+            },
+            '404': {
+              description: 'Post not found',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/NotfoundUserError'
+                  }
+                }
+              }
+            },
+            '500': {
+              description: 'Internal error',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/InternalError'
+                  }
+                }
+              }
+            }
+          }
+        },
         delete: {
           tags: ['Post'],
           summary: 'Delete post by id',

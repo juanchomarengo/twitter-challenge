@@ -2,8 +2,9 @@ import { Request, Response, Router } from 'express'
 import HttpStatus from 'http-status'
 import { ReactionService, ReactionServiceImpl } from '../service'
 import { ReactionRepositoryImpl } from '../repository'
-import { db } from '@utils'
+import { BodyValidation, db } from '@utils'
 import { PostRepositoryImpl } from '@domains/post/repository'
+import { RequestPostsByReactionTypeDTO } from '../dto'
 
 export const reactionRouter = Router()
 
@@ -29,3 +30,18 @@ reactionRouter.delete('/:postId', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK).json(reaction)
 })
+
+reactionRouter.post(
+  '/get/postByReactionType/:userId?',
+  BodyValidation(RequestPostsByReactionTypeDTO),
+  async (req: Request, res: Response) => {
+    const { type } = req.body
+    const { userId } = req.params
+    const { userId: userLogged } = res.locals.context
+
+    // If the userId param is not provided, the userId will be the user logged
+    const post = await service.getPostsByReactionType(type, userId || userLogged)
+
+    return res.status(HttpStatus.OK).json(post)
+  }
+)

@@ -1,5 +1,5 @@
 import { PostInteractionType, PrismaClient } from '@prisma/client'
-import { ReactionDTO } from '../dto'
+import { ExtendedReactionDto, ReactionDTO } from '../dto'
 import { ReactionRepository } from './reaction.repository'
 
 export class ReactionRepositoryImpl implements ReactionRepository {
@@ -36,6 +36,22 @@ export class ReactionRepositoryImpl implements ReactionRepository {
       }
     })
     return newReaction
+  }
+
+  async getPostsByReactionsType(type: PostInteractionType[], userId: string): Promise<ExtendedReactionDto[]> {
+    const posts = await this.db.postInteractions.findMany({
+      where: {
+        userId,
+        actionType: {
+          in: type
+        }
+      },
+      include: {
+        post: true
+      }
+    })
+
+    return posts
   }
 
   async delete({ postId, userId }: { postId: string; userId: string }): Promise<void> {

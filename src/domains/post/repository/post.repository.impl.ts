@@ -8,7 +8,7 @@ import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 export class PostRepositoryImpl implements PostRepository {
   constructor(private readonly db: PrismaClient) {}
 
-  async create(userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
+  async createPost(userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     const post = await this.db.post.create({
       data: {
         authorId: userId,
@@ -18,9 +18,21 @@ export class PostRepositoryImpl implements PostRepository {
     return new PostDTO(post)
   }
 
+  async createComment(userId: string, parentId: string, data: CreatePostInputDTO): Promise<PostDTO> {
+    const post = await this.db.post.create({
+      data: {
+        authorId: userId,
+        parentId,
+        ...data
+      }
+    })
+    return new PostDTO(post)
+  }
+
   async getAllByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
+        parentId: null,
         author: {
           OR: [
             {
@@ -91,7 +103,8 @@ export class PostRepositoryImpl implements PostRepository {
   async getByAuthorId(authorId: string): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
-        authorId
+        authorId,
+        parentId: null
       },
       include: {
         author: {
@@ -102,6 +115,18 @@ export class PostRepositoryImpl implements PostRepository {
             privateProfile: true
           }
         }
+      }
+    })
+    return posts.map((post) => new ExtendedPostDTO(post))
+  }
+
+  async getCommentsByPostId(postId: string): Promise<ExtendedPostDTO[]> {
+    const posts = await this.db.post.findMany({
+      where: {
+        parentId: postId
+      },
+      include: {
+        author: true
       }
     })
     return posts.map((post) => new ExtendedPostDTO(post))
