@@ -1,11 +1,11 @@
 import { Request, Response, Router } from 'express'
 import HttpStatus from 'http-status'
-import 'express-async-errors'
 
 import { db } from '@utils'
 
 import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
+import { createPresignedUrlWithClient } from '@aws/s3'
 
 export const userRouter = Router()
 
@@ -35,6 +35,17 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
   const user = await service.getUser(otherUserId)
 
   return res.status(HttpStatus.OK).json(user)
+})
+
+userRouter.post('/pre-sign', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+
+  const key = `${userId as string}/this.jpeg`
+
+  // TODO: set the bucket name in the .env
+  const pre = await createPresignedUrlWithClient({ bucket: 'challenge-twitter', key })
+
+  return res.status(HttpStatus.OK).json(pre)
 })
 
 userRouter.patch('/', async (req: Request, res: Response) => {
