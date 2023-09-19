@@ -120,14 +120,25 @@ export class PostRepositoryImpl implements PostRepository {
     return posts.map((post) => new ExtendedPostDTO(post))
   }
 
-  async getCommentsByPostId(postId: string): Promise<ExtendedPostDTO[]> {
+  async getCommentsByPostId(postId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
         parentId: postId
       },
       include: {
         author: true
-      }
+      },
+      cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'asc'
+        },
+        {
+          id: 'asc'
+        }
+      ]
     })
     return posts.map((post) => new ExtendedPostDTO(post))
   }

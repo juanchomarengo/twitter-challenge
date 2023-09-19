@@ -82,7 +82,9 @@ postRouter.get('/:postId/comments', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { postId } = req.params
 
-  const comments = await service.getCommentsByPostId(userId, postId)
+  const { limit, before, after } = req.query as Record<string, string>
+
+  const comments = await service.getCommentsByPostId(userId, postId, { limit: Number(limit), before, after })
 
   return res.status(HttpStatus.OK).json(comments)
 })
