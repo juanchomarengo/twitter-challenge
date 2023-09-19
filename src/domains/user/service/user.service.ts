@@ -6,4 +6,5 @@ export interface UserService {
   getUser: (userId: string) => Promise<UserViewDTO>
   getUserRecommendations: (userId: string, options: OffsetPagination) => Promise<UserViewDTO[]>
   partialUpdate: (userId: string, data: Partial<UserDTO>) => Promise<UserDTO>
+  getUserByUsername: (username: string, options: OffsetPagination) => Promise<UserViewDTO[]>
 }

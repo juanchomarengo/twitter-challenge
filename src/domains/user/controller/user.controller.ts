@@ -29,10 +29,19 @@ userRouter.get('/me', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(user)
 })
 
-userRouter.get('/:userId', async (req: Request, res: Response) => {
-  const { userId: otherUserId } = req.params
+userRouter.get('/by_username/:username', async (req: Request, res: Response) => {
+  const { username } = req.params
+  const { limit, skip } = req.query as Record<string, string>
 
-  const user = await service.getUser(otherUserId)
+  const users = await service.getUserByUsername(username, { limit: Number(limit), skip: Number(skip) })
+
+  return res.status(HttpStatus.OK).json(users)
+})
+
+userRouter.get('/:userId', async (req: Request, res: Response) => {
+  const { userId } = req.params
+
+  const user = await service.getUser(userId)
 
   return res.status(HttpStatus.OK).json(user)
 })

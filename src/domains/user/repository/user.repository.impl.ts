@@ -5,15 +5,17 @@ import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from './user.repository'
 
 export class UserRepositoryImpl implements UserRepository {
-  constructor (private readonly db: PrismaClient) {}
+  constructor(private readonly db: PrismaClient) {}
 
-  async create (data: SignupInputDTO): Promise<UserDTO> {
-    return await this.db.user.create({
-      data
-    }).then(user => new UserDTO(user))
+  async create(data: SignupInputDTO): Promise<UserDTO> {
+    return await this.db.user
+      .create({
+        data
+      })
+      .then((user) => new UserDTO(user))
   }
 
-  async getById (userId: any): Promise<UserViewDTO | null> {
+  async getById(userId: any): Promise<UserViewDTO | null> {
     const user = await this.db.user.findUnique({
       where: {
         id: userId
@@ -22,7 +24,7 @@ export class UserRepositoryImpl implements UserRepository {
     return user ? new UserViewDTO(user) : null
   }
 
-  async delete (userId: any): Promise<void> {
+  async delete(userId: any): Promise<void> {
     await this.db.user.delete({
       where: {
         id: userId
@@ -30,7 +32,7 @@ export class UserRepositoryImpl implements UserRepository {
     })
   }
 
-  async getRecommendedUsersPaginated (options: OffsetPagination): Promise<UserViewDTO[]> {
+  async getRecommendedUsersPaginated(options: OffsetPagination): Promise<UserViewDTO[]> {
     const users = await this.db.user.findMany({
       take: options.limit ? options.limit : undefined,
       skip: options.skip ? options.skip : undefined,
@@ -40,10 +42,10 @@ export class UserRepositoryImpl implements UserRepository {
         }
       ]
     })
-    return users.map(user => new UserViewDTO(user))
+    return users.map((user) => new UserViewDTO(user))
   }
 
-  async getByEmailOrUsername (email?: string, username?: string): Promise<ExtendedUserDTO | null> {
+  async getByEmailOrUsername(email?: string, username?: string): Promise<ExtendedUserDTO | null> {
     const user = await this.db.user.findFirst({
       where: {
         OR: [
@@ -59,7 +61,7 @@ export class UserRepositoryImpl implements UserRepository {
     return user ? new ExtendedUserDTO(user) : null
   }
 
-  async partialUpdate (userId: any, data: Partial<UserDTO>): Promise<UserDTO> {
+  async partialUpdate(userId: any, data: Partial<UserDTO>): Promise<UserDTO> {
     const user = await this.db.user.update({
       where: {
         id: userId
@@ -67,5 +69,18 @@ export class UserRepositoryImpl implements UserRepository {
       data
     })
     return new UserDTO(user)
+  }
+
+  async getUserByUsername(username: string, options: OffsetPagination): Promise<UserViewDTO[]> {
+    const users = await this.db.user.findMany({
+      where: {
+        username: {
+          startsWith: username
+        }
+      },
+      take: options.limit ? options.limit : undefined,
+      skip: options.skip ? options.skip : undefined
+    })
+    return users.map((user) => new UserViewDTO(user))
   }
 }
