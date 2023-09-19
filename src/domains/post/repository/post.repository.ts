@@ -8,7 +8,7 @@ export interface PostRepository {
   delete: (postId: string) => Promise<void>
   getById: (postId: string) => Promise<ExtendedPostDTO | null>
   getByAuthorId: (authorId: string) => Promise<ExtendedPostDTO[]>
-  getCommentsByPostId: (postId: string) => Promise<ExtendedPostDTO[]>
+  getCommentsByPostId: (postId: string, options: CursorPagination) => Promise<ExtendedPostDTO[]>
   incrementQty: (postId: string, qty: 'qtyLikes' | 'qtyComments' | 'qtyRetweets') => Promise<PostDTO>
   decrementQty: (postId: string, qty: 'qtyLikes' | 'qtyComments' | 'qtyRetweets') => Promise<PostDTO>
 }
