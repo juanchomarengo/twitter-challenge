@@ -8,7 +8,10 @@ const s3Client = new S3Client({
 })
 
 const createPresignedUrlWithClient = ({ bucket, key }: { bucket: string; key: string }): any => {
-  const command = new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: 'image/png', ContentEncoding: 'base64' })
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: key
+  })
   return getSignedUrl(s3Client, command, { expiresIn: 3600 })
 }
 

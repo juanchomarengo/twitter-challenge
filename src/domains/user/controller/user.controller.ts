@@ -6,6 +6,7 @@ import { db } from '@utils'
 import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
 import { createPresignedUrlWithClient } from '@aws/s3'
+import { randomUUID } from 'crypto'
 
 export const userRouter = Router()
 
@@ -40,7 +41,9 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
 userRouter.post('/pre-sign', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
 
-  const key = `${userId as string}/this.jpeg`
+  const id = randomUUID()
+
+  const key = `${userId as string}/${id}`
 
   // TODO: set the bucket name in the .env
   const pre = await createPresignedUrlWithClient({ bucket: 'challenge-twitter', key })
