@@ -10,4 +10,5 @@ export interface UserRepository {
   getByEmailOrUsername: (email?: string, username?: string) => Promise<ExtendedUserDTO | null>
   partialUpdate: (userId: string, data: Partial<UserDTO>) => Promise<UserDTO>
   getUserByUsername: (username: string, options: OffsetPagination) => Promise<UserViewDTO[]>
+  getConversationsAndPotentialUsers: (userId: string) => Promise<any>
 }

@@ -15,7 +15,7 @@ export class UserRepositoryImpl implements UserRepository {
       .then((user) => new UserDTO(user))
   }
 
-  async getById(userId: any): Promise<UserViewDTO | null> {
+  async getById(userId: string): Promise<UserViewDTO | null> {
     const user = await this.db.user.findUnique({
       where: {
         id: userId
@@ -24,7 +24,7 @@ export class UserRepositoryImpl implements UserRepository {
     return user ? new UserViewDTO(user) : null
   }
 
-  async delete(userId: any): Promise<void> {
+  async delete(userId: string): Promise<void> {
     await this.db.user.delete({
       where: {
         id: userId
@@ -61,7 +61,7 @@ export class UserRepositoryImpl implements UserRepository {
     return user ? new ExtendedUserDTO(user) : null
   }
 
-  async partialUpdate(userId: any, data: Partial<UserDTO>): Promise<UserDTO> {
+  async partialUpdate(userId: string, data: Partial<UserDTO>): Promise<UserDTO> {
     const user = await this.db.user.update({
       where: {
         id: userId
@@ -82,5 +82,26 @@ export class UserRepositoryImpl implements UserRepository {
       skip: options.skip ? options.skip : undefined
     })
     return users.map((user) => new UserViewDTO(user))
+  }
+
+  async getConversationsAndPotentialUsers(userId: string): Promise<any> {
+    // Consulta para obtener todas las conversaciones del usuario actual
+    const conversations = await this.db.converations.findMany({
+      where: {
+        OR: [{ userOneId: userId }, { userTwoId: userId }]
+      }
+    })
+
+    // TODO: Do this query in PRISMA ORM
+    const potentialUsers = await this.db.$queryRaw<Array<{ followedId: string }>>`
+    SELECT DISTINCT A."followedId"
+    FROM "Follow" A
+    INNER JOIN "Follow" B ON A."followerId" = B."followedId" AND A."followedId" = B."followerId"
+    WHERE A."followerId" = '30a91154-a8e9-4011-81b8-525fa35fcf2a';
+    `
+
+    const potential = potentialUsers.map((user: { followedId: string }) => user.followedId)
+
+    return { conversations, potential }
   }
 }

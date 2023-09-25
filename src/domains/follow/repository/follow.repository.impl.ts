@@ -3,8 +3,8 @@ import { FollowRepository } from './follow.repository'
 import { FollowDTO } from '../dto'
 
 export class FollowRepositoryImpl implements FollowRepository {
-  constructor (private readonly db: PrismaClient) {}
-  async upsert ({ followedId, followerId }: { followedId: string, followerId: string }): Promise<FollowDTO> {
+  constructor(private readonly db: PrismaClient) {}
+  async upsert({ followedId, followerId }: { followedId: string; followerId: string }): Promise<FollowDTO> {
     const newFollow = await this.db.follow.upsert({
       where: {
         followerId_followedId: {
@@ -24,7 +24,7 @@ export class FollowRepositoryImpl implements FollowRepository {
     return new FollowDTO(newFollow)
   }
 
-  async delete ({ followedId, followerId }: { followedId: string, followerId: string }): Promise<FollowDTO> {
+  async delete({ followedId, followerId }: { followedId: string; followerId: string }): Promise<FollowDTO> {
     const deletedFollow = await this.db.follow.update({
       where: {
         followerId_followedId: {
@@ -39,7 +39,7 @@ export class FollowRepositoryImpl implements FollowRepository {
     return new FollowDTO(deletedFollow)
   }
 
-  async getFollow ({ followedId, followerId }: { followedId: string, followerId: string }): Promise<FollowDTO | null> {
+  async getFollow({ followedId, followerId }: { followedId: string; followerId: string }): Promise<FollowDTO | null> {
     const follow = await this.db.follow.findUnique({
       where: {
         followerId_followedId: {
