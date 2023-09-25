@@ -13,12 +13,13 @@ export class CreatePostInputDTO {
 }
 
 export class PostDTO {
-  constructor (post: PostDTO) {
+  constructor(post: PostDTO) {
     this.id = post.id
     this.authorId = post.authorId
     this.content = post.content
     this.images = post.images
     this.createdAt = post.createdAt
+    this.parentId = post.parentId
   }
 
   id: string
@@ -26,19 +27,20 @@ export class PostDTO {
   content: string
   images: string[]
   createdAt: Date
+  parentId: string | null
 }
 
 export class ExtendedPostDTO extends PostDTO {
-  constructor (post: ExtendedPostDTO) {
+  constructor(post: ExtendedPostDTO) {
     super(post)
     this.author = post.author
-    // this.qtyComments = post.qtyComments
-    // this.qtyLikes = post.qtyLikes
-    // this.qtyRetweets = post.qtyRetweets
+    this.qtyComments = post.qtyComments
+    this.qtyLikes = post.qtyLikes
+    this.qtyRetweets = post.qtyRetweets
   }
 
   author: UserDTO
-  // qtyComments!: number
-  // qtyLikes!: number
-  // qtyRetweets!: number
+  qtyComments: number
+  qtyLikes: number
+  qtyRetweets: number
 }

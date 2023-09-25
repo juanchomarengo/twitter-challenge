@@ -29,11 +29,14 @@ export class UserViewDTO {
     this.id = user.id
     this.name = user.name
     this.username = user.username
-    this.profilePicture = user.profilePicture
+    this.privateProfile = user.privateProfile
+    // TODO: enable this when s3 is ready
+    // this.profilePicture = user.profilePicture
   }
 
   id: string
-  name: string
+  name: string | null
   username: string
-  profilePicture: string | null
+  privateProfile: boolean
+  // profilePicture: string | null
 }
