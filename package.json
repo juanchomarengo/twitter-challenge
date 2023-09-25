@@ -11,7 +11,8 @@
     "lint": "eslint --fix && pretty-quick && prisma format",
     "db:migrate": "prisma migrate deploy",
     "db:make-migrations": "prisma migrate dev",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "test": "jest --coverage --verbose"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.414.0",
