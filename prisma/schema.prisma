@@ -30,9 +30,12 @@ model User {
   deletedAt DateTime? // Optional value
 
   posts     Post[]
+  messages Message[] // One to many
   follows   Follow[] @relation(name: "follows")
   followers Follow[] @relation(name: "followers")
   interactions PostInteractions[] // One to many
+  conversationUserOne Converations[] @relation(name: "conversationUserOne")
+  conversationUserTwo Converations[] @relation(name: "conversationUserTwo")
 }
 
 model Follow {
@@ -49,6 +52,7 @@ model Follow {
   followed User @relation(name: "followers", fields: [followedId], references: [id], onDelete: Cascade) // One to many
 
   @@unique([followerId, followedId])
+
 }
 
 model Post {
@@ -91,4 +95,35 @@ model PostInteractions {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade) // One to many
 
   @@unique([userId, postId, actionType])
+}
+
+model Converations {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // Primary Key
+
+  userOneId String @db.Uuid // Foreign Key
+  userTwoId String @db.Uuid // Foreign Key
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  userOne User @relation(name: "conversationUserOne", fields: [userOneId], references: [id], onDelete: Cascade) // One to many
+  userTwo User @relation(name: "conversationUserTwo", fields: [userTwoId], references: [id], onDelete: Cascade) // One to many
+
+  messages Message[] // One to many
+
+  @@unique([userOneId, userTwoId])
+}
+
+model Message {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // Primary Key
+
+  conversationId String @db.Uuid // Foreign Key
+  senderId String @db.Uuid // Foreign Key
+  content String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  conversation Converations @relation(fields: [conversationId], references: [id], onDelete: Cascade) // One to many
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade) // One to many
 }

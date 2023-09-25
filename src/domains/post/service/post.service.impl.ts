@@ -71,7 +71,7 @@ export class PostServiceImpl implements PostService {
     return await this.repository.getAllByDatePaginated(userId, options)
   }
 
-  async getPostsByAuthor(userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
+  async getPostsByAuthor(userId: string, authorId: string): Promise<ExtendedPostDTO[]> {
     const author = await this.userService.getUser(authorId)
 
     if (author.privateProfile) {
@@ -94,7 +94,7 @@ export class PostServiceImpl implements PostService {
     return posts
   }
 
-  async getCommentsByPostId(userId: string, postId: string): Promise<ExtendedPostDTO[]> {
+  async getCommentsByPostId(userId: string, postId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const post = await this.repository.getById(postId)
 
     if (!post) throw new NotFoundException('post')
@@ -110,12 +110,12 @@ export class PostServiceImpl implements PostService {
       }
 
       // If the user can view the author's private profile, return all posts
-      const comments = await this.repository.getCommentsByPostId(postId)
+      const comments = await this.repository.getCommentsByPostId(postId, options)
       return comments
     }
 
     // If the author's profile is public, return all posts
-    const comments = await this.repository.getCommentsByPostId(postId)
+    const comments = await this.repository.getCommentsByPostId(postId, options)
     return comments
   }
 }
