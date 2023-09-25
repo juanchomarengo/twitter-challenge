@@ -71,7 +71,7 @@ export class PostServiceImpl implements PostService {
     return await this.repository.getAllByDatePaginated(userId, options)
   }
 
-  async getPostsByAuthor(userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
+  async getPostsByAuthor(userId: string, authorId: string): Promise<ExtendedPostDTO[]> {
     const author = await this.userService.getUser(authorId)
 
     if (author.privateProfile) {
