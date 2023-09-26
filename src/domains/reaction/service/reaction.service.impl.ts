@@ -3,6 +3,7 @@ import { ExtendedReactionDto, ReactionDTO } from '../dto'
 import { ReactionRepository } from '../repository'
 import { ReactionService } from './reaction.service'
 import { PostRepository } from '@domains/post/repository'
+import { NotFoundException } from '@utils'
 
 export class ReactionServiceImpl implements ReactionService {
   constructor(private readonly repository: ReactionRepository, private readonly postRepository: PostRepository) {}
@@ -49,9 +50,8 @@ export class ReactionServiceImpl implements ReactionService {
   }): Promise<string> {
     const reaction = await this.repository.getOne({ postId, userId })
 
-    // TODO: Thow the correct exeption
     if (!reaction) {
-      return 'Not found'
+      throw new NotFoundException('reaction')
     }
 
     await this.repository.delete({ postId, actionType, userId })

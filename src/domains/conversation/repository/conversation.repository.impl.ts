@@ -46,7 +46,6 @@ export class ConversationRepositoryImpl implements ConversationRepository {
       }
     })
 
-    // TODO: Do this query in PRISMA ORM
     const potentialUsers = await this.db.$queryRaw<Array<{ followedId: string }>>`
     SELECT DISTINCT A."followedId"
     FROM "Follow" A

@@ -1,14 +1,15 @@
 import { FollowService } from './follow.service'
 import { FollowDTO } from '../dto'
 import { FollowRepository } from '../repository'
+import { ForbiddenException } from '@utils'
 
 export class FollowServiceImpl implements FollowService {
   constructor (private readonly repository: FollowRepository) {}
 
   async followByUserId ({ followedId, followerId }: { followedId: string, followerId: string }): Promise<FollowDTO> {
-    // TODO: change this error, isnot a internal server error
     if (followedId === followerId) {
-      throw new Error('You cannot follow yourself')
+      // You can't follow yourself
+      throw new ForbiddenException()
     }
 
     // TODO: Check if the user exists
@@ -18,16 +19,16 @@ export class FollowServiceImpl implements FollowService {
   }
 
   async unfollowByUserId ({ followedId, followerId }: { followedId: string, followerId: string }): Promise<FollowDTO> {
-    // TODO: change this error, isnot a internal server error
     if (followedId === followerId) {
-      throw new Error('You cannot follow yourself')
+      // You can't follow yourself
+      throw new ForbiddenException()
     }
 
     const follow = await this.repository.getFollow({ followedId, followerId })
 
-    // TODO: change this error, isnot a internal server error
     if (!follow) {
-      throw new Error('You are not following this user')
+      // You can't unfollow someone you don't follow
+      throw new Error('You can\'t unfollow someone you don\'t follow')
     }
 
     const result = await this.repository.delete({ followedId, followerId })

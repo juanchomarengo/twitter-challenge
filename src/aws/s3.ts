@@ -7,7 +7,9 @@ const s3Client = new S3Client({
   region: REGION
 })
 
-const createPresignedUrlWithClient = ({ bucket, key }: { bucket: string; key: string }): any => {
+const createPresignedUrlWithClient = ({ bucket, key }: { bucket: string | undefined; key: string }): any => {
+  if (!bucket) throw new Error('Bucket name is required')
+
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: key

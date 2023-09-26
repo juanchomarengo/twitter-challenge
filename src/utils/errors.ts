@@ -73,11 +73,6 @@ export function ErrorHandling (error: Error, req: Request, res: Response, next: 
     return res.status(HttpStatus.BAD_REQUEST).json({ message: error.message, code: 400 })
   }
 
-  if (error instanceof ExpressValidationError) {
-    Logger.error(error.message)
-    return res.status(HttpStatus.BAD_REQUEST).json({ message: error.message, code: 400 })
-  }
-
   Logger.error(error.message)
   return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message, code: 500 })
 }
