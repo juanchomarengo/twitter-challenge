@@ -4,7 +4,6 @@ import { UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { isUUID } from '@utils/functions'
-
 export class UserServiceImpl implements UserService {
   constructor (private readonly repository: UserRepository) {}
 

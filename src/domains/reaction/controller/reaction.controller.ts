@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express'
 import HttpStatus from 'http-status'
+import 'express-async-errors'
 import { ReactionService, ReactionServiceImpl } from '../service'
 import { ReactionRepositoryImpl } from '../repository'
 import { BodyValidation, db } from '@utils'

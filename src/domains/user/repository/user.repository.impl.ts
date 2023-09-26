@@ -92,12 +92,11 @@ export class UserRepositoryImpl implements UserRepository {
       }
     })
 
-    // TODO: Do this query in PRISMA ORM
     const potentialUsers = await this.db.$queryRaw<Array<{ followedId: string }>>`
     SELECT DISTINCT A."followedId"
     FROM "Follow" A
     INNER JOIN "Follow" B ON A."followerId" = B."followedId" AND A."followedId" = B."followerId"
-    WHERE A."followerId" = '30a91154-a8e9-4011-81b8-525fa35fcf2a';
+    WHERE A."followerId" = ${userId}::uuid
     `
 
     const potential = potentialUsers.map((user: { followedId: string }) => user.followedId)
