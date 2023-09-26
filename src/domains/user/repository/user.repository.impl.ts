@@ -92,6 +92,7 @@ export class UserRepositoryImpl implements UserRepository {
       }
     })
 
+    // TODO: REMOVE THE UUID HARDCODED
     // TODO: Do this query in PRISMA ORM
     const potentialUsers = await this.db.$queryRaw<Array<{ followedId: string }>>`
     SELECT DISTINCT A."followedId"
