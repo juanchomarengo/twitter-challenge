@@ -15,6 +15,7 @@ export class UserServiceImpl implements UserService {
   }
 
   async getUserRecommendations (userId: string, options: OffsetPagination): Promise<UserViewDTO[]> {
+    if (!userId || !isUUID(userId)) throw new NotFoundException('user')
     // TODO: make this return only users followed by users the original user follows
     return await this.repository.getRecommendedUsersPaginated(options)
   }
