@@ -53,7 +53,8 @@ userRouter.post('/pre-sign', async (req: Request, res: Response) => {
 
   const key = `${userId as string}/${id}`
 
-  const pre = await createPresignedUrlWithClient({ bucket: process.env.S3_BUCKET, key })
+  // TODO: Move this to .env
+  const pre = await createPresignedUrlWithClient({ bucket: 'challenge-twitter', key })
 
   return res.status(HttpStatus.OK).json(pre)
 })

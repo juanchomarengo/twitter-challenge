@@ -29,6 +29,17 @@ export class PostServiceImpl implements PostService {
 
     if (!getParent) throw new NotFoundException('post')
 
+    if (getParent.author.privateProfile) {
+      const canViewThisPost = await this.followService.canViewPrivateProfile({
+        followedId: getParent.authorId,
+        followerId: userId
+      })
+
+      if (!canViewThisPost) {
+        throw new ForbiddenException()
+      }
+    }
+
     const post = await this.repository.createComment(userId, parentId, data)
 
     await this.reactionRepository.create({
