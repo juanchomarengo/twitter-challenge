@@ -2,12 +2,17 @@ import express from 'express'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-
 import { Constants, NodeEnv, Logger } from '@utils'
 import { router } from '@router'
 import { ErrorHandling } from '@utils/errors'
+import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
+import { options } from '@swagger'
+import { createServer } from 'http'
+import { socketIo } from './socket'
 
 const app = express()
+const httpServer = createServer(app)
 
 // Set up request logger
 if (Constants.NODE_ENV === NodeEnv.DEV) {
@@ -26,10 +31,15 @@ app.use(
   })
 )
 
+const specs = swaggerJSDoc(options)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
+
 app.use('/api', router)
 
 app.use(ErrorHandling)
 
-app.listen(Constants.PORT, () => {
+httpServer.listen(Constants.PORT, () => {
   Logger.info(`Server listening on port ${Constants.PORT}`)
 })
+
+socketIo(httpServer)

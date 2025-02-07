@@ -6,6 +6,8 @@ import { db } from '@utils'
 
 import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
+import { createPresignedUrlWithClient } from '@aws/s3'
+import { randomUUID } from 'crypto'
 
 export const userRouter = Router()
 
@@ -29,10 +31,39 @@ userRouter.get('/me', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(user)
 })
 
-userRouter.get('/:userId', async (req: Request, res: Response) => {
-  const { userId: otherUserId } = req.params
+userRouter.get('/by_username/:username', async (req: Request, res: Response) => {
+  const { username } = req.params
+  const { limit, skip } = req.query as Record<string, string>
 
-  const user = await service.getUser(otherUserId)
+  const users = await service.getUserByUsername(username, { limit: Number(limit), skip: Number(skip) })
+
+  return res.status(HttpStatus.OK).json(users)
+})
+
+userRouter.get('/:userId', async (req: Request, res: Response) => {
+  const { userId } = req.params
+  const user = await service.getUser(userId)
+  return res.status(HttpStatus.OK).json(user)
+})
+
+userRouter.post('/pre-sign', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+
+  const id = randomUUID()
+
+  const key = `${userId as string}/${id}`
+
+  // TODO: Move this to .env
+  const pre = await createPresignedUrlWithClient({ bucket: 'challenge-twitter', key })
+
+  return res.status(HttpStatus.OK).json(pre)
+})
+
+userRouter.patch('/', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { privateProfile } = req.body
+
+  const user = await service.partialUpdate(userId, { privateProfile })
 
   return res.status(HttpStatus.OK).json(user)
 })
@@ -42,5 +73,5 @@ userRouter.delete('/', async (req: Request, res: Response) => {
 
   await service.deleteUser(userId)
 
-  return res.status(HttpStatus.OK)
+  return res.status(HttpStatus.OK).json('User deleted successfully')
 })
