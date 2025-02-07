@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express'
 import HttpStatus from 'http-status'
+import 'express-async-errors'
 
 import { db } from '@utils'
 
@@ -41,9 +42,7 @@ userRouter.get('/by_username/:username', async (req: Request, res: Response) => 
 
 userRouter.get('/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params
-
   const user = await service.getUser(userId)
-
   return res.status(HttpStatus.OK).json(user)
 })
 
@@ -54,7 +53,7 @@ userRouter.post('/pre-sign', async (req: Request, res: Response) => {
 
   const key = `${userId as string}/${id}`
 
-  // TODO: set the bucket name in the .env
+  // TODO: Move this to .env
   const pre = await createPresignedUrlWithClient({ bucket: 'challenge-twitter', key })
 
   return res.status(HttpStatus.OK).json(pre)

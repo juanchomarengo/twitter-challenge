@@ -1,14 +1,17 @@
 import { Request, Response, Router } from 'express'
 import HttpStatus from 'http-status'
+import 'express-async-errors'
 import { ReactionService, ReactionServiceImpl } from '../service'
 import { ReactionRepositoryImpl } from '../repository'
 import { BodyValidation, db } from '@utils'
 import { PostRepositoryImpl } from '@domains/post/repository'
 import { RequestPostsByReactionTypeDTO } from '../dto'
+import { FollowServiceImpl } from '@domains/follow/service'
+import { FollowRepositoryImpl } from '@domains/follow/repository'
 
 export const reactionRouter = Router()
 
-const service: ReactionService = new ReactionServiceImpl(new ReactionRepositoryImpl(db), new PostRepositoryImpl(db))
+const service: ReactionService = new ReactionServiceImpl(new ReactionRepositoryImpl(db), new PostRepositoryImpl(db), new FollowServiceImpl(new FollowRepositoryImpl(db)))
 
 reactionRouter.post('/:postId', async (req: Request, res: Response) => {
   const { postId } = req.params

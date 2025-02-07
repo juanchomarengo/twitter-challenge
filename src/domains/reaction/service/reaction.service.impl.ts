@@ -3,9 +3,15 @@ import { ExtendedReactionDto, ReactionDTO } from '../dto'
 import { ReactionRepository } from '../repository'
 import { ReactionService } from './reaction.service'
 import { PostRepository } from '@domains/post/repository'
+import { ForbiddenException, NotFoundException } from '@utils'
+import { FollowService } from '@domains/follow/service'
 
 export class ReactionServiceImpl implements ReactionService {
-  constructor(private readonly repository: ReactionRepository, private readonly postRepository: PostRepository) {}
+  constructor(
+    private readonly repository: ReactionRepository,
+    private readonly postRepository: PostRepository,
+    private readonly followService: FollowService
+  ) {}
 
   async create({
     postId,
@@ -20,6 +26,21 @@ export class ReactionServiceImpl implements ReactionService {
 
     if (reaction) {
       return reaction
+    }
+
+    const getParent = await this.postRepository.getById(postId)
+
+    if (!getParent) throw new NotFoundException('post')
+
+    if (getParent.author.privateProfile) {
+      const canViewThisPost = await this.followService.canViewPrivateProfile({
+        followedId: getParent.authorId,
+        followerId: userId
+      })
+
+      if (!canViewThisPost) {
+        throw new ForbiddenException()
+      }
     }
 
     const newReaction = await this.repository.create({ postId, actionType, userId })
@@ -49,9 +70,8 @@ export class ReactionServiceImpl implements ReactionService {
   }): Promise<string> {
     const reaction = await this.repository.getOne({ postId, userId })
 
-    // TODO: Thow the correct exeption
     if (!reaction) {
-      return 'Not found'
+      throw new NotFoundException('reaction')
     }
 
     await this.repository.delete({ postId, actionType, userId })

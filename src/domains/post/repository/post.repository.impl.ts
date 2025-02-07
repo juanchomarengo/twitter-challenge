@@ -133,6 +133,9 @@ export class PostRepositoryImpl implements PostRepository {
       take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
       orderBy: [
         {
+          qtyLikes: 'desc'
+        },
+        {
           createdAt: 'asc'
         },
         {

@@ -25,15 +25,12 @@ export class FollowRepositoryImpl implements FollowRepository {
   }
 
   async delete({ followedId, followerId }: { followedId: string; followerId: string }): Promise<FollowDTO> {
-    const deletedFollow = await this.db.follow.update({
+    const deletedFollow = await this.db.follow.delete({
       where: {
         followerId_followedId: {
           followedId,
           followerId
         }
-      },
-      data: {
-        deletedAt: new Date()
       }
     })
     return new FollowDTO(deletedFollow)
